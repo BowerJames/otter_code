@@ -10,7 +10,7 @@ agents, including:
 
 Example:
     import dspy
-    from dspy_coding_agent import configure, get_all_tools
+    from otter_code import configure, get_all_tools
     
     # Configure the toolkit
     configure(

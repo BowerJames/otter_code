@@ -4,7 +4,7 @@ This module provides an optional MCP-based backend for filesystem operations,
 allowing integration with MCP-compliant servers for standardized tool access.
 
 Note: Requires the optional 'mcp' dependency:
-    pip install dspy-coding-agent[mcp]
+    pip install otter_code[mcp]
 """
 
 import asyncio
@@ -67,7 +67,7 @@ class MCPFilesystemClient:
         if not MCP_AVAILABLE:
             raise ImportError(
                 "MCP package not installed. Install with: "
-                "pip install dspy-coding-agent[mcp]"
+                "pip install otter_code[mcp]"
             )
         
         self.project_root = project_root
@@ -199,7 +199,7 @@ def create_mcp_filesystem_tools(project_root: str) -> dict[str, callable]:
     if not MCP_AVAILABLE:
         raise ImportError(
             "MCP package not installed. Install with: "
-            "pip install dspy-coding-agent[mcp]"
+            "pip install otter_code[mcp]"
         )
     
     client = MCPFilesystemClient(project_root)

@@ -9,8 +9,8 @@ DSPy modules like dspy.ReAct.
 
 Example usage:
     import dspy
-    from dspy_coding_agent.tools import get_all_tools
-    from dspy_coding_agent.config import ToolConfig, configure
+    from otter_code.tools import get_all_tools
+    from otter_code.config import ToolConfig, configure
     
     # Configure tools
     configure(
