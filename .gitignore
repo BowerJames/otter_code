@@ -153,3 +153,7 @@ cython_debug/
 .uv/
 uv.lock
 
+# sqlite
+*.sqlite
+*.sqlite3
+*.sqlite3-journal
