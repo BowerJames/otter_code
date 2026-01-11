@@ -20,6 +20,9 @@ import dspy
 from otter_code import configure, get_all_tools, cleanup
 from otter_code.modules import Agent
 from dotenv import load_dotenv
+import subprocess
+import time
+import requests
 
 import mlflow
 
@@ -127,8 +130,38 @@ def configure_mlflow(args: argparse.Namespace) -> None:
     # Get MLflow URI from environment variable or use default
     mlflow_uri = os.getenv('ML_FLOW_URI', 'http://127.0.0.1:5000')
     
+    # Get backend store URI from environment variable or use default
+    backend_store_uri = os.getenv('ML_FLOW_BACKEND_STORE_URI', 'sqlite:///mydb.sqlite')
+    
     # Get experiment name from environment variable or use default
     experiment_name = os.getenv('ML_FLOW_EXPERIMENT', 'otter_code')
+    
+    # Check if MLflow server is already running
+    server_running = check_mlflow_server_running(mlflow_uri)
+    
+    if not server_running:
+        if args.verbose:
+            print(f"MLflow server not detected. Starting MLflow server...")
+        
+        # Start MLflow server
+        mlflow_server_process = start_mlflow_server(mlflow_uri, backend_store_uri)
+        
+        # Wait for server to start
+        max_attempts = 10
+        attempt = 0
+        
+        while attempt < max_attempts:
+            attempt += 1
+            if check_mlflow_server_running(mlflow_uri):
+                if args.verbose:
+                    print(f"MLflow server started successfully")
+                break
+            time.sleep(1)
+        else:
+            print(f"Warning: MLflow server failed to start after {max_attempts} attempts")
+    else:
+        if args.verbose:
+            print(f"MLflow server is already running")
     
     # Configure MLflow
     mlflow.set_tracking_uri(mlflow_uri)
@@ -140,7 +173,51 @@ def configure_mlflow(args: argparse.Namespace) -> None:
     if args.verbose:
         print(f"MLflow tracing enabled")
         print(f"MLflow URI: {mlflow_uri}")
+        print(f"Backend store URI: {backend_store_uri}")
         print(f"Experiment name: {experiment_name}")
+
+
+def check_mlflow_server_running(mlflow_uri: str) -> bool:
+    """Check if MLflow server is running by attempting to connect to it."""
+    try:
+        # Try to get the server status
+        response = requests.get(f"{mlflow_uri}/api/2.0/mlflow/runs/search", 
+                              params={"experiment_ids": "0"},
+                              timeout=2)
+        return response.status_code == 200
+    except (requests.ConnectionError, requests.Timeout, requests.RequestException):
+        return False
+
+
+def start_mlflow_server(mlflow_uri: str, backend_store_uri: str) -> subprocess.Popen:
+    """Start MLflow server as a subprocess."""
+    try:
+        # Parse the MLflow URI to extract host and port
+        from urllib.parse import urlparse
+        parsed_uri = urlparse(mlflow_uri)
+        host = parsed_uri.hostname or '127.0.0.1'
+        port = parsed_uri.port or 5000
+        
+        # Start MLflow server subprocess
+        cmd = [
+            'mlflow', 'server',
+            '--backend-store-uri', backend_store_uri,
+            '--host', host,
+            '--port', str(port)
+        ]
+        
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            stdin=subprocess.DEVNULL
+        )
+        
+        return process
+        
+    except Exception as e:
+        print(f"Error starting MLflow server: {e}")
+        raise
 
 
 def configure_otter_code(args: argparse.Namespace) -> None:
@@ -171,7 +248,7 @@ def execute_task(agent: Agent, task: str, args: argparse.Namespace) -> str:
     
     try:
         # Execute the task using the Agent's forward method
-        result = agent.forward(task=task)
+        result = agent(task=task)
         
         if args.verbose:
             print("=" * 60)
