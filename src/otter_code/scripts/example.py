@@ -10,7 +10,7 @@ mlflow.dspy.autolog()
 
 load_dotenv()
 
-from otter_code.modules import Plan
+from otter_code.modules import Agent
 
 # Setup
 dspy.configure(
@@ -22,9 +22,9 @@ dspy.configure(
 )
 configure(project_root=".", shell_backend="local")
 
-plan = Plan()
+agent = Agent()
 
-response = plan(task="We need to create a dspy module for executing the plan output by a plan module.")
+response = agent(task="In the otter_cli.py script it shoudl be using the Agent module defined in the otter_code modules. Instead it seems to be creating its own react agent. Can you fix this?")
 
 print("--------------------------------")
 print("RESPONSE:")
