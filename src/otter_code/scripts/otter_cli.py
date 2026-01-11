@@ -113,6 +113,7 @@ def configure_dspy(args: argparse.Namespace) -> None:
         lm=dspy.LM(
             os.getenv('LM_MODEL'),
             api_key=os.getenv('LM_API_KEY'),
+            api_base=os.getenv('LM_API_BASE', 'https://api.z.ai/api/coding/paas/v4'),
             temperature=args.temperature
         )
     )

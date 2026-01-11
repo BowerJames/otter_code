@@ -14,6 +14,6 @@ class Agent(dspy.Module):
         self.execute = Execute(**kwargs)
 
     def forward(self, task: str) -> str:
-        plan = self.plan(task=task)
-        result = self.execute(task=task, plan=plan.plan)
+        plan = self.plan(task=task, current_plan="", developer_question="")
+        result = self.execute(task=task, plan=plan.updated_plan)
         return result
