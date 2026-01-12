@@ -396,7 +396,7 @@ def _parse_unified_diff(diff: str) -> list[dict]:
             elif line.startswith('+'):
                 current_hunk['lines'].append(('add', line[1:]))
             elif line.startswith(' ') or line == '\n':
-                content = line[1:] if line.startswith(' ') else line
+                content = line  # Keep the space as it's part of the actual content
                 current_hunk['lines'].append(('context', content))
     
     if current_hunk:

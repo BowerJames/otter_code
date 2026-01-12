@@ -21,6 +21,7 @@ from otter_code.tools import (
     get_shell_info,
     wrap_as_dspy_tool
 )
+from otter_code.tools.communication import ask_question
 
 EXECUTE_TOOLS = [
     wrap_as_dspy_tool(read_file),
@@ -39,6 +40,7 @@ EXECUTE_TOOLS = [
     wrap_as_dspy_tool(change_directory),
     wrap_as_dspy_tool(reset_shell_session),
     wrap_as_dspy_tool(get_shell_info),
+    wrap_as_dspy_tool(ask_question),
 ]
 
 class ExecuteSignature(dspy.Signature):
